@@ -8,7 +8,7 @@ import os
 import tensorflow as tf
 from tensorflow.keras import regularizers, optimizers, activations, layers
 import numpy as np
-
+import random
 
 # This class is to define the noise (Ornstein-Uhlenbeck process) which is required for exploration
 class OUNoise(object):
@@ -55,7 +55,7 @@ class ReplayBuffer(object):
         self.terminal_memory = np.zeros(self.memory_size, dtype=np.float32)
 
     # Storing the parameter values during transition
-    def store_transition(self, state, action, reward, new_state, flag_complete):
+    def transition(self, state, action, reward, new_state, flag_complete):
         index = self.memory_cntr % self.memory_size  # if counter < memory size if returns - memory counter value and
         # if it goes more it starts again
         self.state_memory[index] = state
@@ -69,10 +69,13 @@ class ReplayBuffer(object):
     def sample_buffer(self, batch_size):
         max_memory = min(self.memory_cntr, self.memory_size)
         batch = np.random.choice(max_memory, batch_size)
-        states = self.state_memory[batch]
-        actions = self.action_memory[batch]
-        rewards = self.reward_memory[batch]
-        new_states = self.new_state_memory[batch]
-        terminal = self.terminal_memory[batch]
+        batch_states = self.state_memory[batch]
+        batch_actions = self.action_memory[batch]
+        batch_rewards = self.reward_memory[batch]
+        batch_new_states = self.new_state_memory[batch]
+        batch_terminal = self.terminal_memory[batch]
 
-        return states, actions, rewards, new_states, terminal
+        return batch_states, batch_actions, batch_rewards, batch_new_states, batch_terminal
+
+    def clear_or_reset(self):
+        self.__init__()
