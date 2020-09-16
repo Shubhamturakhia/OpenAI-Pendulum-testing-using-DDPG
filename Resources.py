@@ -4,9 +4,6 @@ of SARS)
 """
 
 # Import the libraries required for processing
-import os
-import tensorflow as tf
-from tensorflow.keras import regularizers, optimizers, activations, layers
 import numpy as np
 import random
 
@@ -39,7 +36,7 @@ class OUNoise(object):
 
 
 # This class has functions to initialize the parameters, storing the S-A-R-S'-A' for every checkpoint
-# (used during the process for back-propagation learning) and sample func which loads the parameters and is randomly
+# used during the process for back-propagation learning) and sample func which loads the parameters and is randomly
 # selected
 class ReplayBuffer(object):
 
