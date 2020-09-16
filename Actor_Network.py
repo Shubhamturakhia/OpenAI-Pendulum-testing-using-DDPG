@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 from tensorflow.compat.v1.initializers import random_uniform
 
+
 class ActorNN(object):
 
     def __init__(self, sess, learning_rate, n_act ,input_dims, name, batch_size, layer1_dims, layer2_dims,
@@ -50,46 +51,40 @@ class ActorNN(object):
                 s1 = 1. / np.sqrt(self.f1)
                 weights = random_uniform(-s1, s1)
                 bias = random_uniform(-s1, s1)
-                Layer1 = tf.keras.layers.Dense(self.input, units=self.f1,kernel_initializer= weights,
-                                               bias_initializer= bias)
+                Layer1 = tf.keras.layers.Dense(self.input, units=self.f1,kernel_initializer=weights,
+                                               bias_initializer=bias)
                 Norm1 = tf.keras.layers.BatchNormalization(Layer1)
-                L1_Activation =tf.keras.activations.relu(Norm1)
+                L1_Activation = tf.keras.activations.relu(Norm1)
 
                 s2 = 1. / np.sqrt(self.f2)
                 weights = random_uniform(-s2, s2)
                 bias = random_uniform(-s2, s2)
-                Layer2 = tf.keras.layers.Dense(L1_Activation, units=self.f2, kernel_initializer= weights,
-                                               bias_initializer= bias)
+                Layer2 = tf.keras.layers.Dense(L1_Activation, units=self.f2, kernel_initializer=weights,
+                                               bias_initializer=bias)
                 Norm2 = tf.keras.layers.BatchNormalization(Layer2)
                 L2_Activation = tf.keras.activations.relu(Norm2)
 
                 s3 = 3e-3
                 weights = random_uniform(-s3, s3)
                 bias = random_uniform(-s3, s3)
-                Layer3 = tf.keras.layers.Dense(L2_Activation, units=, kernel_initializer= weights,
-                                               bias_initializer= bias)
+                Layer3 = tf.keras.layers.Dense(L2_Activation, units=self.n_act, kernel_initializer=weights,
+                                               bias_initializer=bias)
                 mu = tf.keras.activations.tanh(Layer3)
 
                 self.mu = tf.multiply(mu, self.action_bound)
 
-
     def predict(self, inputs):
         return self.sess.run(self.mu, feed_dict={self.input: inputs})
 
-
     def train(self, inputs, gradients):
-        self.sess.run(self.optimizer,
-                      feed_dict={self.input: inputs,
-                                 self.actor_gradient: gradients})
-
+        self.sess.run(self.optimizer, feed_dict={self.input: inputs, self.actor_gradient: gradients})
 
     def load_checkpoint(self):
-        print("...Loading checkpoint...")
+        print("## Loading checkpoint ##")
         self.save.restore(self.sess, self.checkpoint_file)
 
-
     def save_checkpoint(self):
-        print("...Saving checkpoint...")
+        print("## Saving checkpoint ##")
         self.save.save(self.sess, self.checkpoint_file)
 
 
