@@ -13,7 +13,7 @@ from Critic_Network import *
 class Agent(object):
 
     def __init__(self, alpha, beta, input_dims, tau, env, gamma=0.99, n_act=2,
-                 max_size=1000000, layer1_size=400, layer2_size=300,
+                 max_size=10e6, layer1_size=400, layer2_size=300,
                  batch_size=64):
         self.gamma = gamma
         self.tau = tau
