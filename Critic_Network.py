@@ -71,15 +71,15 @@ class CriticNN(object):
                                                   activation='relu')
 
                 state_actions = tf.add(Norm2, action_in)
-                state_actions = tf.nn.relu(state_actions)
+                state_actions = tf.keras.activations.relu(state_actions)
 
                 s3 = 3e-3
                 weights = random_uniform(-s3, s3)
                 bias = random_uniform(-s3, s3)
-                self.q = tf.keras.layers.Dense(L2_Activation, units=1, kernel_initializer=weights,
+                self.q = tf.keras.layers.Dense(state_actions, units=1, kernel_initializer=weights,
                                                bias_initializer=bias)
 
-                self.loss = tf.keras.metrics.mean_squared_error(self.q, self.targetq)
+                self.loss = tf.keras.metrics.mean_squared_error(self.targetq, self.q)
 
     def predict(self, inputs, actions):
         return self.sess.run(self.q, feed_dict={self.input: inputs,
