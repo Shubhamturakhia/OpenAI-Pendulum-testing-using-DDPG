@@ -86,6 +86,3 @@ class ActorNN(object):
     def save_checkpoint(self):
         print("## Saving checkpoint ##")
         self.save.save(self.sess, self.checkpoint_file)
-
-
-
