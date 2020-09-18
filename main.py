@@ -14,8 +14,8 @@ if __name__ == "__main__":
     env.seed(0)
     Episodes=500
     # Initialize agent
-    Ag_controller= Agent(alpha=10e-4, beta=10e-3, input_dims=[3], tau= 0.001, env=env, gamma=0.99, n_act=1,
-                         max_size=10e6,
+    Ag_controller= Agent(alpha=0.0001, beta=0.001, input_dims=[3], tau=0.001, env=env, gamma=0.99, n_act=1,
+                         max_size=1000000,
                          layer1_size=400, layer2_size=300, batch_size=64)
     """
     alpha = 10e-4
@@ -47,29 +47,10 @@ if __name__ == "__main__":
             new_state, reward, done, info = env.step(action_chosen)
             k = Ag_controller.get_sample_buffer(s, action_chosen, reward, new_state, flag_complete)
 
-            #Learn stage
-            def learning_stage(self):
-                if self.memory.mem_cntr < self.batch_size:
-                    return
+            # Learn stage
+            Ag_controller.learning_stage()
 
-                state, action, reward, new_state, flag_complete = self.memory.sample_buffer(self.batch_size)
-
-                updated_critic_value = self.target_critic.predict(new_state,
-                                                           self.target_actor.predict(new_state))
-                yi = []
-                for k in range(self.batch_size):
-                    yi.append(reward[k] + self.gamma * updated_critic_value[k] * flag_complete[k])
-                yi = np.reshape(yi, (self.batch_size, 1))
-
-                predicted_q, _ = self.critic.train(state, action, yi)
-
-                action_outputs = self.actor.predict(state)
-                grad = self.critic.get_action_gradients(state, action_outputs)
-
-                self.actor.train(state, grad[0])
-
-                self.update_parameters()
-
+            # Reward points calculation
             points = points + reward
             s = new_state
 

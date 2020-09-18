@@ -12,8 +12,8 @@ from tensorflow.compat.v1.initializers import random_uniform
 
 class CriticNN(object):
 
-    def __init__(self, sess, learning_rate, n_act, input_dims, name, batch_size, layer1_dims, layer2_dims,
-                 action_bound, ckpt="DDpg_checkpoints"):
+    def __init__(self, sess, learning_rate, n_act, input_dims, name, layer1_dims, layer2_dims,
+                 action_bound, batch_size=64, ckpt="DDpg_checkpoints"):
         self.sess = sess
         self.learning_rate = learning_rate
         self.input_dims = input_dims

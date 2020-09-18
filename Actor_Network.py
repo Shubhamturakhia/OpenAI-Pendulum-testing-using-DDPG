@@ -4,13 +4,15 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 from tensorflow.compat.v1.initializers import random_uniform
 
+tf.compat.v1.disable_eager_execution()
+
 
 class ActorNN(object):
 
-    def __init__(self, sess, learning_rate, n_act ,input_dims, name, batch_size, layer1_dims, layer2_dims,
-                 action_bound, ckpt = "DDpg_checkpoints"):
+    def __init__(self, sess, learning_rate, n_act ,input_dims, name, layer1_dims, layer2_dims,
+                 action_bound, batch_size=64, ckpt = "DDpg_checkpoints"):
         self.sess = sess
-        self.learning_rate  = learning_rate
+        self.learning_rate = learning_rate
         self.input_dims = input_dims
         self.name = name
         self.batch_size = batch_size
@@ -37,10 +39,10 @@ class ActorNN(object):
         while True:
             with tf.compat.v1.variable_scope(self.name):
 
-                self.input = tf.keras.Input(tf.float32, shape=[None, *self.input_dims],
+                self.input = tf.compat.v1.placeholder(tf.float32, shape=[None, *self.input_dims],
                              name='inputs')
 
-                self.actor_gradient = tf.keras.Input(tf.float32,
+                self.actor_gradient = tf.compat.v1.placeholder(tf.float32,
                                       shape=[None, self.n_act],
                                       name='gradient')
 
@@ -51,7 +53,8 @@ class ActorNN(object):
                 s1 = 1. / np.sqrt(self.f1)
                 weights = random_uniform(-s1, s1)
                 bias = random_uniform(-s1, s1)
-                Layer1 = tf.keras.layers.Dense(self.input, units=self.f1,kernel_initializer=weights,
+                Layer1 = tf.keras.layers.Dense(self.input, units=self.f1,
+                                               kernel_initializer=weights,
                                                bias_initializer=bias)
                 Norm1 = tf.keras.layers.BatchNormalization(Layer1)
                 L1_Activation = tf.keras.activations.relu(Norm1)

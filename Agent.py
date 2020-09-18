@@ -46,6 +46,27 @@ class Agent(object):
         self.sess.run(tf.compat.v1.global_variables_initializer())
         self.update_parameters()
 
+    def learning_stage(self):
+        if self.memory.mem_cntr < self.batch_size:
+            return
+
+        state, action, reward, new_state, flag_complete = self.memory.sample_buffer(self.batch_size)
+
+        updated_critic_value = self.target_critic.predict(new_state,
+                                                          self.target_actor.predict(new_state))
+        yi = []
+        for k in range(self.batch_size):
+            yi.append(reward[k] + self.gamma * updated_critic_value[k] * flag_complete[k])
+        yi = np.reshape(yi, (self.batch_size, 1))
+
+        predicted_q, _ = self.critic.train(state, action, yi)
+
+        action_outputs = self.actor.predict(state)
+        grad = self.critic.get_action_gradients(state, action_outputs)
+
+        self.actor.train(state, grad[0])
+        self.update_parameters()
+
     def get_sample_buffer(self, state, action, reward, new_state, flag_complete):
         return self.RB.transition(state, action, reward, new_state, flag_complete)
 
