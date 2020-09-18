@@ -22,16 +22,16 @@ class Agent(object):
         self.sess = tf.compat.v1.Session()
 
         self.noise = OUNoise(mu=np.zeros(n_act))
-        self.actor = ActorNN(alpha, input_dims, 'Actor', self.sess, n_act, layer1_size, layer2_size,
-                             env.action_space.high)
-        self.critic = CriticNN(beta, input_dims, 'Critic', self.sess, n_act,
-                               layer1_size, layer2_size)
+        self.actor = ActorNN(learning_rate=alpha, input_dims=input_dims, name='Actor', sess=self.sess, n_act=n_act,
+                             layer1_dims=layer1_size, layer2_dims=layer2_size,action_bound=env.action_space.high)
+        self.critic = CriticNN(learning_rate=beta, input_dims=input_dims, name='Critic', sess=self.sess, n_act=n_act,
+                               layer1_dims=layer1_size, layer2_dims=layer2_size)
 
-        self.target_a = ActorNN(alpha, n_act, 'TargetActor',
-                                input_dims, self.sess, layer1_size,
-                                layer2_size, env.action_space.high)
-        self.target_c = CriticNN(beta, n_act, 'TargetCritic', input_dims,
-                                 self.sess, layer1_size, layer2_size)
+        self.target_a = ActorNN(learning_rate=alpha, n_act=n_act, name='TargetActor',
+                                input_dims=input_dims, sess=self.sess, layer1_dims=layer1_size,
+                                layer2_dims=layer2_size, action_bound=env.action_space.high)
+        self.target_c = CriticNN(learning_rate=beta, n_act=n_act, name='TargetCritic', input_dims=input_dims,
+                                 sess=self.sess, layer1_dims=layer1_size, layer2_dims=layer2_size)
 
         self.update_critic = [self.target_c.network_parameters[i].assign(
             tf.multiply(self.critic.network_parameters[i], self.tau) +
@@ -62,7 +62,7 @@ class Agent(object):
             self.target_c.sess.run(self.update_critic)
             self.target_a.sess.run(self.update_actor)
 
-    def choose_action(self, state):
+    def action(self, state):
         state = state[np.newaxis, :]
         mu = self.actor.predict(state)
         noise = self.noise()

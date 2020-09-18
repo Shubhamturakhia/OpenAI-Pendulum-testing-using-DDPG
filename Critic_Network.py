@@ -8,6 +8,8 @@ from tensorflow.compat.v1.initializers import random_uniform
 # TODO: Minimize loss function
 # TODO: Creation of checkpoints, saving them,(add best checkpoints according to the rewards achieved and no deletion or resetting for that - until mentioned or confirmed)
 # TODO: Actor gradients
+
+
 class CriticNN(object):
 
     def __init__(self, sess, learning_rate, n_act, input_dims, name, batch_size, layer1_dims, layer2_dims,
