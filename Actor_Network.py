@@ -21,7 +21,7 @@ class ActorNN(object):
         self.action_bound = action_bound
         self.ckpt = ckpt
         self.n_act = n_act
-
+        print ("ACTOR NETWORK")
         # Need to build the network at Initialization, Save the checkpoints in the ckpt directory named above
         self.create_actor_network()
         self.network_parameters =  tf.compat.v1.trainable_variables(scope = self.name)
@@ -36,8 +36,7 @@ class ActorNN(object):
             apply_gradients(zip(self.actor_gradients, self.network_parameters))
 
     def create_actor_network(self):
-        while True:
-            with tf.compat.v1.variable_scope(self.name):
+            with tf.compat.v1.variable_scope(self.name, reuse=tf.compat.v1.AUTO_REUSE):
 
                 self.input = tf.compat.v1.placeholder(tf.float32, shape=[None, *self.input_dims],
                              name='inputs')
@@ -53,27 +52,27 @@ class ActorNN(object):
                 s1 = 1. / np.sqrt(self.f1)
                 weights = random_uniform(-s1, s1)
                 bias = random_uniform(-s1, s1)
-                Layer1 = tf.keras.layers.Dense(self.input, units=self.f1,
+                Layer1 = tf.compat.v1.layers.dense(self.input, units=self.f1,
                                                kernel_initializer=weights,
                                                bias_initializer=bias)
-                Norm1 = tf.keras.layers.BatchNormalization(Layer1)
+                Norm1 = tf.compat.v1.layers.batch_normalization(Layer1)
                 L1_Activation = tf.keras.activations.relu(Norm1)
 
                 s2 = 1. / np.sqrt(self.f2)
                 weights = random_uniform(-s2, s2)
                 bias = random_uniform(-s2, s2)
-                Layer2 = tf.keras.layers.Dense(L1_Activation, units=self.f2, kernel_initializer=weights,
+                Layer2 = tf.compat.v1.layers.dense(L1_Activation, units=self.f2, kernel_initializer=weights,
                                                bias_initializer=bias)
-                Norm2 = tf.keras.layers.BatchNormalization(Layer2)
+                Norm2 = tf.compat.v1.layers.batch_normalization(Layer2)
                 L2_Activation = tf.keras.activations.relu(Norm2)
 
                 s3 = 3e-3
                 weights = random_uniform(-s3, s3)
                 bias = random_uniform(-s3, s3)
-                Layer3 = tf.keras.layers.Dense(L2_Activation, units=self.n_act, kernel_initializer=weights,
+                Layer3 = tf.compat.v1.layers.dense(L2_Activation, units=self.n_act, kernel_initializer=weights,
                                                bias_initializer=bias)
                 mu = tf.keras.activations.tanh(Layer3)
-
+                print ("STAGING TO MU")
                 self.mu = tf.multiply(mu, self.action_bound)
 
     def predict(self, inputs):

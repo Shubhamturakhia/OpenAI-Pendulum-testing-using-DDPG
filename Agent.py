@@ -12,7 +12,7 @@ from Critic_Network import *
 
 class Agent(object):
 
-    def __init__(self, alpha, beta, input_dims, tau, env, gamma=0.99, n_act=2,
+    def __init__(self, alpha, beta, input_dims, tau, env, gamma=0.99, n_act=1,
                  max_size=10e6, layer1_size=400, layer2_size=300,
                  batch_size=64):
         self.gamma = gamma
@@ -22,8 +22,10 @@ class Agent(object):
         self.sess = tf.compat.v1.Session()
 
         self.noise = OUNoise(mu=np.zeros(n_act))
+        print("ACTOR NETWORK AGENT")
         self.actor = ActorNN(learning_rate=alpha, input_dims=input_dims, name='Actor', sess=self.sess, n_act=n_act,
-                             layer1_dims=layer1_size, layer2_dims=layer2_size,action_bound=env.action_space.high)
+                             layer1_dims=layer1_size, layer2_dims=layer2_size,action_bound=env.action_space.low)
+        print("CRTIC NETWORK AGENT")
         self.critic = CriticNN(learning_rate=beta, input_dims=input_dims, name='Critic', sess=self.sess, n_act=n_act,
                                layer1_dims=layer1_size, layer2_dims=layer2_size)
 
@@ -47,19 +49,19 @@ class Agent(object):
         self.update_parameters()
 
     def learning_stage(self):
-        if self.memory.mem_cntr < self.batch_size:
+        if self.RB.memory_cntr < self.batch_size:
             return
 
-        state, action, reward, new_state, flag_complete = self.memory.sample_buffer(self.batch_size)
+        state, action, reward, new_state, flag_complete = self.RB.sample_buffer(self.batch_size)
 
-        updated_critic_value = self.target_critic.predict(new_state,
-                                                          self.target_actor.predict(new_state))
+        updated_critic_value = self.target_c.predict(new_state,
+                                                          self.target_a.predict(new_state))
         yi = []
         for k in range(self.batch_size):
             yi.append(reward[k] + self.gamma * updated_critic_value[k] * flag_complete[k])
         yi = np.reshape(yi, (self.batch_size, 1))
 
-        predicted_q, _ = self.critic.train(state, action, yi)
+        _ = self.critic.train(state, action, yi)
 
         action_outputs = self.actor.predict(state)
         grad = self.critic.get_action_gradients(state, action_outputs)
