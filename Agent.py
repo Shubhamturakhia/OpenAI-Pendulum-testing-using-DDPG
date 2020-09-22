@@ -24,7 +24,7 @@ class Agent(object):
         self.noise = OUNoise(mu=np.zeros(n_act))
         print("ACTOR NETWORK AGENT")
         self.actor = ActorNN(learning_rate=alpha, input_dims=input_dims, name='Actor', sess=self.sess, n_act=n_act,
-                             layer1_dims=layer1_size, layer2_dims=layer2_size,action_bound=env.action_space.low)
+                             layer1_dims=layer1_size, layer2_dims=layer2_size,action_bound=env.action_space.high)
         print("CRTIC NETWORK AGENT")
         self.critic = CriticNN(learning_rate=beta, input_dims=input_dims, name='Critic', sess=self.sess, n_act=n_act,
                                layer1_dims=layer1_size, layer2_dims=layer2_size)
@@ -70,6 +70,7 @@ class Agent(object):
         self.update_parameters()
 
     def get_sample_buffer(self, state, action, reward, new_state, flag_complete):
+        #print(flag_complete)
         return self.RB.transition(state, action, reward, new_state, flag_complete)
 
     def update_parameters(self):

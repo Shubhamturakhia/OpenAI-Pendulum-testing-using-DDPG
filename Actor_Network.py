@@ -14,6 +14,7 @@ class ActorNN(object):
         self.sess = sess
         self.learning_rate = learning_rate
         self.input_dims = input_dims
+        print(self.input_dims)
         self.name = name
         self.batch_size = batch_size
         self.f1 = layer1_dims
@@ -66,7 +67,7 @@ class ActorNN(object):
                 Norm2 = tf.compat.v1.layers.batch_normalization(Layer2)
                 L2_Activation = tf.keras.activations.relu(Norm2)
 
-                s3 = 3e-3
+                s3 = 0.003
                 weights = random_uniform(-s3, s3)
                 bias = random_uniform(-s3, s3)
                 Layer3 = tf.compat.v1.layers.dense(L2_Activation, units=self.n_act, kernel_initializer=weights,
