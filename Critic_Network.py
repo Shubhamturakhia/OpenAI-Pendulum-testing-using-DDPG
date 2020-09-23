@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.compat.v1.initializers import random_uniform
 
 # TODO: Creation of Critic Network
@@ -8,15 +9,16 @@ from tensorflow.compat.v1.initializers import random_uniform
 # TODO: Creation of checkpoints, saving them,(add best checkpoints according to the rewards achieved and no deletion or resetting for that - until mentioned or confirmed)
 # TODO: Actor gradients
 
-tf.compat.v1.disable_eager_execution()
-class CriticNN(object):
+#tf.compat.v1.disable_eager_execution()
+class CriticNN(keras.Model):
 
-    def __init__(self, sess, learning_rate, n_act, input_dims, name, layer1_dims, layer2_dims,
+    def __init__(self, sess,learning_rate, n_act, input_dim, name, layer1_dims, layer2_dims,
                  batch_size=64, ckpt="DDpg_checkpoints"):
+        super(CriticNN, self).__init__()
         self.sess = sess
         self.learning_rate = learning_rate
-        self.input_dims = input_dims
-        self.name = name
+        self.input_dim = input_dim
+        self.mname = name
         self.batch_size = batch_size
         self.f1 = layer1_dims
         self.f2 = layer2_dims
@@ -24,24 +26,28 @@ class CriticNN(object):
         self.n_act = n_act
         print("CRITIC NETWORK")
         # Need to build the network at Initialization, Save the checkpoints in the ckpt directory named above
-        self.create_critic_network()
-        self.network_parameters = tf.compat.v1.trainable_variables(scope=self.name)
-        self.save = tf.compat.v1.train.Saver()
-        self.checkpoint_file = os.path.join(ckpt, name + '_ddpg')
+        #self.create_critic_network()
+        self.network_parameters = tf.compat.v1.trainable_variables(scope=self.mname)
+        #self.save = tf.compat.v1.train.Saver()
+        self.checkpoint_file = os.path.join(ckpt, self.mname + '_ddpg')
 
         # minimize the loss function as is in the paper
-        self.actor_gradients = tf.gradients(self.q, self.actions)
+        #self.actor_gradients = tf.gradients(self.q, self.actions)
 
-        self.optimizer = tf.compat.v1.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
+        #self.optimizer = tf.compat.v1.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
 
+        self.f1 = keras.layers.Dense(self.f1, activation='relu')
+        self.f2 = keras.layers.Dense(self.f2, activation='relu')
+        self.q = keras.layers.Dense(1, activation=None)
+    '''
     def create_critic_network(self):
             with tf.compat.v1.variable_scope(self.name):
 
                 # adding placeholders
-                self.input = tf.compat.v1.placeholder(tf.float32, shape=[None, *self.input_dims],
+                self.input = tf.compat.v1.placeholder(tf.float32, shape=[None, self.state_dim],
                                             name='inputs')
 
-                self.actions = tf.compat.v1.placeholder(tf.float32, shape=[None, self.n_act],
+                self.actions = tf.compat.v1.placeholder(tf.float32, shape=[None, self.action_dim],
                                               name='actions')
 
                 self.targetq = tf.compat.v1.placeholder(tf.float32, shape=[None, 1], name='target_q')
@@ -77,8 +83,14 @@ class CriticNN(object):
                 bias = random_uniform(-s3, s3)
                 self.q = tf.compat.v1.layers.dense(state_actions, units=1, kernel_initializer=weights,
                                                bias_initializer=bias)
-                print("STAGING TO LOSSS")
+                print("STAGING TO LOSS")
                 self.loss = tf.keras.metrics.mean_squared_error(self.targetq, self.q)
+    '''
+    def call(self, state, action):
+        action_value = self.f1(tf.concat([state, action], axis=1))
+        action_value = self.f2(action_value)
+        q = self.q(action_value)
+        return q
 
     def predict(self, inputs, actions):
         return self.sess.run(self.q, feed_dict={self.input: inputs,
