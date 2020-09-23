@@ -37,10 +37,14 @@ class ActorNN(keras.Model):
 
         #self.optimizer = Adam(self.learning_rate).\
         #    apply_gradients(zip(self.actor_gradients, self.network_parameters))
-
-        self.f1 = keras.layers.Dense(self.f1, activation='relu')
-        self.f2 = keras.layers.Dense(self.f2, activation='relu')
-        self.mu = keras.layers.Dense(self.n_act, activation='tanh')
+        s1 = 1. / np.sqrt(self.f1)
+        self.ff1 = keras.layers.Dense(self.f1, activation='relu',kernel_initializer=random_uniform(-s1,s1),
+                                      bias_initializer=random_uniform(-s1,s1))
+        s2 = 1. / np.sqrt(self.f2)
+        self.ff2 = keras.layers.Dense(self.f2, activation='relu', kernel_initializer=random_uniform(-s2,s2),
+                                      bias_initializer=random_uniform(-s2,s2))
+        self.mu = keras.layers.Dense(self.n_act, activation='tanh',kernel_initializer=random_uniform(-0.003,0.003),
+                                      bias_initializer=random_uniform(-0.003,0.003))
 
     '''
     def create_actor_network(self):
@@ -96,8 +100,8 @@ class ActorNN(keras.Model):
                 self.mu = tf.multiply(mu, self.action_bound)
     '''
     def call(self, state):
-        prob = self.f1(state)
-        prob = self.f2(prob)
+        prob = self.ff1(state)
+        prob = self.ff2(prob)
         mu = self.mu(prob)
         return mu
 

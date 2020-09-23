@@ -35,10 +35,14 @@ class CriticNN(keras.Model):
         #self.actor_gradients = tf.gradients(self.q, self.actions)
 
         #self.optimizer = tf.compat.v1.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
-
-        self.f1 = keras.layers.Dense(self.f1, activation='relu')
-        self.f2 = keras.layers.Dense(self.f2, activation='relu')
-        self.q = keras.layers.Dense(1, activation=None)
+        s1 = 1./np.sqrt(self.f1)
+        self.ff1 = keras.layers.Dense(self.f1, activation='relu', kernel_initializer=random_uniform(-s1,s1),
+                                      bias_initializer=random_uniform(-s1,s1))
+        s2 = 1. / np.sqrt(self.f2)
+        self.ff2 = keras.layers.Dense(self.f2, activation='relu',kernel_initializer=random_uniform(-s2,s2),
+                                      bias_initializer=random_uniform(-s2,s2))
+        self.q = keras.layers.Dense(1, activation=None, kernel_initializer=random_uniform(-0.0003,0.0003),
+                                      bias_initializer=random_uniform(-0.0003,0.0003))
     '''
     def create_critic_network(self):
             with tf.compat.v1.variable_scope(self.name):
@@ -87,8 +91,8 @@ class CriticNN(keras.Model):
                 self.loss = tf.keras.metrics.mean_squared_error(self.targetq, self.q)
     '''
     def call(self, state, action):
-        action_value = self.f1(tf.concat([state, action], axis=1))
-        action_value = self.f2(action_value)
+        action_value = self.ff1(tf.concat([state, action], axis=1))
+        action_value = self.ff2(action_value)
         q = self.q(action_value)
         return q
 

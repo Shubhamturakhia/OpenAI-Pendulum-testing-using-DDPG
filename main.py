@@ -16,7 +16,7 @@ def main(_argv):
     # Environment using OpenAI gym
     env = gym.make('Pendulum-v0')
     # env.reset()
-    Episodes=1000
+    Episodes=100
 
     state_dim = env.observation_space.shape
     action_dim = env.action_space.shape[0]
