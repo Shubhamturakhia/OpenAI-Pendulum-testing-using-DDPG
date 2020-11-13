@@ -6,7 +6,7 @@ Thesis Title: Bike Control and Navigation using Reinforcement Learning
 Paper referred for the DDPG algorithm: "**https://arxiv.org/pdf/1509.02pdf971.**"
 
 ### Algorithm Design Procedure: 
-Following the DDPG and Deep Q Learning algorithm procedure, we need the old state, action, reward and new states as
+Following the DDPG algorithm procedure, we need the old state, action, reward and new states as
 output for every step
 
 ##### Things required for Algorithm processing:
