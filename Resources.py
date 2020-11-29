@@ -60,7 +60,8 @@ class ReplayBuffer(object):
         self.action_memory[index] = action
         self.reward_memory[index] = reward
         self.new_state_memory[index] = new_state
-        self.terminal_memory[index] = 1 - int(flag_complete)  # flag used to not store the rewards after episode is done
+        #print (flag_complete)
+        self.terminal_memory[index] = 1 - flag_complete  # flag used to not store the rewards after episode is done
         self.memory_cntr += 1
 
     # Sample buffer
